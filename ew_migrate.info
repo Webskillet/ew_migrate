@@ -1,0 +1,10 @@
+name = "Migrate Earth Walk Relationships"
+description = "Module to migrate Earth Walk Relationships into RedHen CRM"
+package = "Mirgation"
+core = 7.x
+dependencies[] = migrate
+dependencies[] = relation
+files[] = ew_migrate.migrate.inc
+files[] = children.inc
+files[] = relationship.inc
+files[] = household.inc

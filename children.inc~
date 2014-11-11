@@ -1,0 +1,44 @@
+<?php
+
+class MigrateEWChildrenMigration extends Migration {
+
+  /**
+   * Constructor.
+   *
+   * @param $field_type Field type machine name.
+   */
+  public function __construct($arguments) {
+    parent::__construct($arguments);
+    $this->source = new MigrateSourceCSV(__DIR__.'/child_guardian_test.csv', null, array('header_rows' => 1));
+    $this->destination = new MigrateDestinationRelation('child_minor');
+    $this->map = new MigrateSQLMap($this->machineName,
+      array(
+        'nature' => array(
+          'type' => 'varchar',
+          'length' => 128,
+          'not null' => TRUE,
+        ),
+        'child_id' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+        'guardian_id' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+      ),
+      MigrateDestinationRelation::getKeySchema()
+    );
+	$this->addFieldMapping('nature','');
+    
+  }
+
+  public function prepare(stdClass $relation, stdClass $source_row) {
+    $relation->endpoints[LANGUAGE_NONE] = array(
+      array('entity_type' => 'redhen_contact', 'entity_id' => $source_row->child_id),
+      array('entity_type' => 'redhen_contact', 'entity_id' => $source_row->guardian_id),
+    );
+  }
+}

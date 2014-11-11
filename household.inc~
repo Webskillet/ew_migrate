@@ -1,0 +1,44 @@
+<?php
+
+class MigrateEWHouseholdMigration extends Migration {
+
+  /**
+   * Constructor.
+   *
+   * @param $field_type Field type machine name.
+   */
+  public function __construct($arguments) {
+    parent::__construct($arguments);
+    $this->source = new MigrateSourceCSV(__DIR__.'/households.csv', null, array('header_rows' => 1));
+    $this->destination = new MigrateDestinationRelation('lives_in');
+    $this->map = new MigrateSQLMap($this->machineName,
+      array(
+        'status' => array(
+          'type' => 'varchar',
+          'length' => 128,
+          'not null' => TRUE,
+        ),
+        'contact_id' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+        'household_id' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+      ),
+      MigrateDestinationRelation::getKeySchema()
+    );
+	$this->addFieldMapping('status','field_resident_status');
+    
+  }
+
+  public function prepare(stdClass $relation, stdClass $source_row) {
+    $relation->endpoints[LANGUAGE_NONE] = array(
+      array('entity_type' => 'redhen_contact', 'entity_id' => $source_row->child_id),
+      array('entity_type' => 'redhen_contact', 'entity_id' => $source_row->guardian_id),
+    );
+  }
+}
